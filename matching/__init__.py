@@ -20,6 +20,8 @@ class Comparison(IntEnum):
 
 
 def name_matching(first: str, second: str) -> Comparison:
+    first = first.lower()
+    second = second.lower()
     if first == second:
         if not first:
             # both null
@@ -71,5 +73,25 @@ def zip_matching(first: Record, second: Record) -> Comparison:
     return loose_equality(first.postalZip, second.postalZip)
 
 
+ADDRESS_COMPONENTS_VARIANTS = {
+    'avenue': {'ave', 'av'},
+    'street': {'st'},
+    'road': {'rd'},
+}
+
+ADDRESS_COMPONENTS_LOOKUP = {
+    variant: canonical
+    for canonical, variants in ADDRESS_COMPONENTS_VARIANTS.items()
+    for variant in variants
+}
+
+
 def address_matching(first: Record, second: Record) -> Comparison:
-    return loose_equality(first.address, second.address)
+    return loose_equality(standardize_address(first.address), standardize_address(second.address))
+
+
+def standardize_address(first_address):
+    return " ".join(
+        ADDRESS_COMPONENTS_LOOKUP.get(component) or component for component in
+        first_address.lower().replace(".", "").replace(",", "").split(" ")
+    )

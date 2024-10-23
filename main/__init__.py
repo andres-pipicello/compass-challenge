@@ -22,6 +22,6 @@ def main():
                 (first, second) = (records[i], records[j])
                 comparison_results = {function: function(first, second) for function in comparison_functions}
                 comparison_counters = Counter(comparison_results.values())
-                if comparison_counters[Comparison.NO_MATCH] == 1:
+                if comparison_counters[Comparison.NO_MATCH] == 0:
                     nice_results = sorted((key.name, count) for key, count in comparison_counters.items())
                     print(f"Result: {nice_results} -> {first} and {second} match")
