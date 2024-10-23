@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import IntEnum
+from typing import List
 
 
 @dataclass
@@ -87,11 +88,25 @@ ADDRESS_COMPONENTS_LOOKUP = {
 
 
 def address_matching(first: Record, second: Record) -> Comparison:
-    return loose_equality(standardize_address(first.address), standardize_address(second.address))
+    first_address_components = standardize_address(first.address)
+    second_address_components = standardize_address(second.address)
+    first_joined = " ".join(first_address_components)
+    second_joined = " ".join(second_address_components)
+    equality = loose_equality(first_joined, second_joined)
+    if equality != Comparison.NO_MATCH:
+        return equality
+    # consider addresses that are substrings of other addresses similar enough
+    if first_joined.find(second_joined) != -1 or second_joined.find(first_joined) != -1:
+        return Comparison.LIKELY
+    return Comparison.NO_MATCH
 
 
-def standardize_address(first_address):
-    return " ".join(
+
+def standardize_address(address: str) -> List[str]:
+    return [
         ADDRESS_COMPONENTS_LOOKUP.get(component) or component for component in
-        first_address.lower().replace(".", "").replace(",", "").split(" ")
-    )
+        address.lower().replace(".", "")
+        .replace(",", "")
+        .replace("#", "")
+        .split(" ")
+    ]

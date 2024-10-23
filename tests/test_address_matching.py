@@ -19,3 +19,7 @@ def test_abbreviations():
     assert address_matching(Record(address="Ap #900-7243 Lorem. Avenue"),
                             Record(address="Ap #900-7243 Lorem. Ave")) == Comparison.MATCH
     assert address_matching(Record(address="3588 Mi Road"), Record(address="3588 Mi Rd.")) == Comparison.MATCH
+
+def test_similarity():
+    assert address_matching(Record(address="3588 Mi Road"), Record(address="Mi Rd")) == Comparison.LIKELY
+    assert address_matching(Record(address="3588 Mi Road"), Record(address="8835 Mi Road")) == Comparison.NO_MATCH
